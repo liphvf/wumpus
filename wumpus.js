@@ -1,122 +1,230 @@
-var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+// mods by Patrick OReilly 
+// twitter: @pato_reilly
+
+var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 
 function preload() {
 
-	game.load.spritesheet("hunter", "assets/img/hunter.png", 65, 65);
-	game.load.image("mapa", "assets/img/mapa.png");
-	game.load.image('pit', 'assets/img/pit.png');
-	game.load.image('sky', 'assets/img/sky.png');
-    game.load.image('ground', 'assets/img/platform.png');
-};
+    game.load.tilemap('matching', 'assets/tilemaps/maps/phaser_tiles.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.image('tiles', 'assets/tilemaps/tiles/phaser_tiles.png');//, 100, 100, -1, 1, 1);    
+}
 
-var hunter
-var platforms
-var cursors
-var pit
+var timeCheck = 0;
+var flipFlag = false;
+
+var startList = new Array();
+var squareList = new Array();
+
+var masterCounter = 0;
+var squareCounter = 0;
+var square1Num;
+var square2Num;
+var savedSquareX1;
+var savedSquareY1;
+var savedSquareX2;
+var savedSquareY2;
+
+var map;
+var tileset;
+var layer;
+
+var marker;
+var currentTile;
+var currentTilePosition;
+
+var tileBack = 25;
+var timesUp = '+';
+var youWin = '+';
+
+var myCountdownSeconds;
+
 
 function create() {
-// add física
-game.physics.startSystem(Phaser.Physics.ARCADE);
-game.stage.smoothed = false;
-// game.stage.backgroundColor = "#7cdce5";
 
-//backgroud
-game.add.sprite(0, 0, 'sky');
+        map = game.add.tilemap('matching');
 
-//criou platforms group
-platforms = game.add.group();
+        map.addTilesetImage('Desert', 'tiles');
 
-// habilita a física
-platforms.enableBody = true;
+        //tileset = game.add.tileset('tiles');
+    
+        layer = map.createLayer('Ground');//.tilemapLayer(0, 0, 600, 600, tileset, map, 0);
 
-// define um conjutno de items que vão participar da física
-var ground = platforms.create(0, game.world.height - 64, 'ground');
+        //layer.resizeWorld();
 
-// define a escala
-ground.scale.setTo(2, 2);
+        marker = game.add.graphics();
+        marker.lineStyle(2, 0x00FF00, 1);
+        marker.drawRect(0, 0, 100, 100);
+    
+    randomizeTiles();
 
-//set como imutável
-ground.body.immovable = true;
-
-// criar um hunter
-hunter = game.add.sprite(350,game.world.height-150, 'hunter');
-
-//habilitar física
-game.physics.arcade.enable(hunter);
-
-hunter.scale.setTo(2, 2);
-
-
-hunter.body.bounce.y = 0.2;
-hunter.body.gravity.y = 0;
-hunter.body.collideWorldBounds = true;
-
-//animation
-hunter.animations.add('left', [0, 1, 2, 3, 4,5], 5, true);
-hunter.animations.add('right', [7,8,9,10,11,12], 5, true);
-
-
-pitgroup = game.add.group();
-
-// hunter.scale.setTo(1,1)
-
-// pit = game.add.sprite(0,0, 'pit');
-
-// for (var i = 0; i < 3; i++)
-// {
-
-// var listay = [100,200,300,400,500,600,700,800]
-// var listax = [100,200,300,400,500,600]
-
-
-//     //  Create a pit inside of the 'stars' group
-//     var pit = pitgroup.create(listay[Math.floor(Math.random()*listay.length)], listax[Math.floor(Math.random()*listay.length)], 'pit');
-
-//      // Let gravity do its thing
-//     // pit.body.gravity.y = 300;
-
-// //     //  This just gives each pit a slightly random bounce value
-// //     pit.body.bounce.y = 0.7 + Math.random() * 0.2;
-// }
-
-game.camera.follow(hunter);
-
-cursors = game.input.keyboard.createCursorKeys();
-
-};
+}
 
 function update() {
+    
+    // countDownTimer();
+    
+    if (layer.getTileX(game.input.activePointer.worldX) <= 5) // to prevent the marker from going out of bounds
+    {
+        marker.x = layer.getTileX(game.input.activePointer.worldX) * 100;
+        marker.y = layer.getTileY(game.input.activePointer.worldY) * 100;
+    }
 
-	game.physics.arcade.collide(hunter, platforms);
-	// game.physics.arcade.overlap(hunter, null, this);
+    if (flipFlag == true) 
+    {
+        if (game.time.totalElapsedSeconds() - timeCheck > 0.5)
+        {
+            flipBack();
+        }
+    }
+    else
+    {
+        processClick();
+    }
+}
+   
+   
+// function countDownTimer() {
+  
+//     var timeLimit = 120;
+  
+//     mySeconds = game.time.totalElapsedSeconds();
+//     myCountdownSeconds = timeLimit - mySeconds;
+    
+//     if (myCountdownSeconds <= 0) 
+//         {
+//         // time is up
+//         timesUp = 'Time is up!';    
+//     }
+// }
 
-    //  Reset the players velocity (movement)
-    hunter.body.velocity.x = 0;
+function processClick() {
+   
+    currentTile = map.getTile(layer.getTileX(marker.x), layer.getTileY(marker.y));
+    currentTilePosition = ((layer.getTileY(game.input.activePointer.worldY)+1)*6)-(6-(layer.getTileX(game.input.activePointer.worldX)+1));
+        
+    if (game.input.mousePointer.isDown)
+        {
+        // check to make sure the tile is not already flipped
+        if (currentTile.index == tileBack)
+        {
+            // get the corresponding item out of squareList
+                currentNum = squareList[currentTilePosition-1];
+            flipOver();
+                squareCounter++;
+            // is the second tile of pair flipped?
+            if  (squareCounter == 2) 
+            {
+                // reset squareCounter
+                squareCounter = 0;
+                square2Num = currentNum;
+                // check for match
+                if (square1Num == square2Num)
+                {
+                    masterCounter++;    
+                    
+                    if (masterCounter == 18) 
+                    {
+                        // go "win"
+                        youWin = 'Got them all!';
+                    }                       
+                }
+                else
+                {
+                    savedSquareX2 = layer.getTileX(marker.x);
+                    savedSquareY2 = layer.getTileY(marker.y);
+                        flipFlag = true;
+                        timeCheck = game.time.totalElapsedSeconds();
+                }   
+            }   
+            else
+            {
+                savedSquareX1 = layer.getTileX(marker.x);
+                savedSquareY1 = layer.getTileY(marker.y);
+                    square1Num = currentNum;
+            }           
+        }           
+    }    
+}
+ 
+function flipOver() {
+ 
+    map.putTile(currentNum, layer.getTileX(marker.x), layer.getTileY(marker.y));
+    
+}
+ 
+function flipBack() {
+        
+    flipFlag = false;
+    
+    map.putTile(tileBack, savedSquareX1, savedSquareY1);
+    map.putTile(tileBack, savedSquareX2, savedSquareY2);
+ 
+}
+ 
+function randomizeTiles() {
 
-	if (cursors.left.isDown){
-		// hunter.x -= 4;
-		hunter.body.velocity.x = -150;
-		hunter.animations.play('left');
-	}
-	else if (cursors.right.isDown) {
-		// hunter.x += 4;
-		hunter.body.velocity.x = +150;
-		hunter.animations.play('right');
-	}
-	else {
-        hunter.animations.stop();
+    for (num = 1; num <= 18; num++)
+    {
+        startList.push(num);
+    }
+    for (num = 1; num <= 18; num++)
+    {
+        startList.push(num);
+    }
 
-        hunter.frame = 6;
-	}
+    // for debugging
+    // myString1 = startList.toString();
+  
+    // randomize squareList
+    for (i = 1; i <=36; i++)
+    {
+        var randomPosition = game.rnd.integerInRange(0,startList.length - 1);
 
-	if(cursors.up.isDown) {
-		hunter.y -= 4;
+        var thisNumber = startList[ randomPosition ];
 
-	}
-	else if (cursors.down.isDown) {
-		hunter.y +=4;
-	}
+        squareList.push(thisNumber);
+        var a = startList.indexOf(thisNumber);
+
+        startList.splice( a, 1);
+    }
+    
+    // for debugging
+    myString2 = squareList.toString();
+  
+    for (col = 0; col < 6; col++)
+    {
+        for (row = 0; row < 6; row++)
+        {
+            map.putTile(tileBack, col, row);
+        }
+    }
+}
+
+// function getHiddenTile() {
+        
+//     thisTile = squareList[currentTilePosition-1];
+//     return thisTile;
+// }
+
+function render() {
+
+    game.debug.text(timesUp, 620, 208, 'rgb(0,255,0)');
+    game.debug.text(youWin, 620, 240, 'rgb(0,255,0)');
+
+    // game.debug.text('Time: ' + myCountdownSeconds, 620, 15, 'rgb(0,255,0)');
+
+    //game.debug.text('squareCounter: ' + squareCounter, 620, 272, 'rgb(0,0,255)');
+    // game.debug.text('Matched Pairs: ' + masterCounter, 620, 304, 'rgb(0,0,255)');
+
+    //game.debug.text('startList: ' + myString1, 620, 208, 'rgb(255,0,0)');
+    //game.debug.text('squareList: ' + myString2, 620, 240, 'rgb(255,0,0)');
 
 
-};
+    game.debug.text('Tile: ' + map.getTile(layer.getTileX(marker.x), layer.getTileY(marker.y)).index, 620, 48, 'rgb(255,0,0)');
 
+    game.debug.text('LayerX: ' + layer.getTileX(marker.x), 620, 80, 'rgb(255,0,0)');
+    game.debug.text('LayerY: ' + layer.getTileY(marker.y), 620, 112, 'rgb(255,0,0)');
+
+    game.debug.text('Tile Position: ' + currentTilePosition, 620, 144, 'rgb(255,0,0)');
+    // game.debug.text('Hidden Tile: ' + getHiddenTile(), 620, 176, 'rgb(255,0,0)');
+}
