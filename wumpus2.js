@@ -16,7 +16,13 @@ var hunter;
 var tiles;
 var cursors;
 var pit;
-var cord = [[0,0], [200,0], [400,0], [600,0], [0,200], [200,200], [400,200],[600,200], [0,400], [200,400], [400,400], [600,400], [200,600], [400,600], [600,600]];
+// var cord = [[0,0], [200,0], [400,0], [600,0], [0,200], [200,200], [400,200],[600,200], [0,400], [200,400], [400,400], [600,400], [200,600], [400,600], [600,600]];
+var cord = [
+[[0,0], [200,0], [400,0], [600,0]],
+[[0,200], [200,200], [400,200],[600,200]],
+[[0,400], [200,400], [400,400], [600,400]],
+[[0,600],[200,600], [400,600], [600,600]]
+];
 
 function create() {
 
@@ -82,16 +88,20 @@ hunter.body.collideWorldBounds = true;
 hunter.animations.add('left', [0, 1, 2, 3, 4,5], 5, true);
 hunter.animations.add('right', [7,8,9,10,11,12], 5, true);
 
-
+//Cria um gropo de objetos
 pitgroup = game.add.group();
+// adiciona física a esse grupo
+pitgroup.enableBody = true;
+
 
 
 for (var i = 0; i < 3; i++){
 
 	var pitcord = cord[Math.floor(Math.random()*cord.length)];
+	var pitcordcolumn = pitcord[Math.floor(Math.random()*pitcord.length)];
 
 
-    var pit = pitgroup.create(pitcord[0],pitcord[1], 'pit');
+    var pit = pitgroup.create(pitcordcolumn[0],pitcordcolumn[1], 'pit');
 };
 
 game.camera.follow(hunter);
@@ -103,16 +113,20 @@ cursors = game.input.keyboard.createCursorKeys();
 function update() {
 
 	// game.physics.arcade.collide(hunter, tiles, huntermove);
-	game.physics.arcade.overlap(hunter, tiles, huntermove);
-	game.physics.arcade.overlap(hunter, pitgroup, hunterkill);
+	game.physics.arcade.overlap(hunter, tiles, huntermove, null, this);
+	game.physics.arcade.overlap(hunter, pitgroup, pitfall);
 
 function huntermove(hunter, tile) {
 
 	tile.kill()
 }
 
-function hunterkill(hunter, pit) {
+function pitfall(hunter, pit) {
 	hunter.kill()
+	var conf = 	confirm("Caiu no Burraco, gostaria de reiniciar o jogo?")
+	if (conf === true) {
+		location.reload(); 
+	}
 }
 
     //  Reset the players velocity (movement)
