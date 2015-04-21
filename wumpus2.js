@@ -3,11 +3,11 @@ var game = new Phaser.Game(800, 800, Phaser.AUTO, '', { preload: preload, create
 function preload() {
 
 	game.load.spritesheet("hunter", "assets/img/hunter.png", 65, 65);
-	// game.load.image("mapa", "assets/img/mapa.png");
 	game.load.image('pit', 'assets/img/pit.png');
 	game.load.image('sky', 'assets/img/sky.png');
     game.load.image('ground', 'assets/img/platform.png');
     game.load.image('tile', 'assets/img/tilenew.png');
+    game.load.image('wind', 'assets/img/wind.png');
 
     game.load.tilemap('matching', 'assets/tilemaps/maps/phaser_tiles.json', null, Phaser.Tilemap.TILED_JSON);
 };
@@ -24,9 +24,10 @@ var cord = [
 [[0,600],[200,600], [400,600], [600,600]]
 ];
 
+var windcord
+
 function create() {
 
-map = game.add.tilemap('matching');
 // add física
 game.physics.startSystem(Phaser.Physics.ARCADE);
 game.stage.smoothed = false;
@@ -62,15 +63,66 @@ var t42 = tiles.create(200,600,'tile')
 var t43 = tiles.create(400,600,'tile')
 var t44 = tiles.create(600,600,'tile')
 
-// // define um conjutno de items que vão participar da física
-// var ground = tiles.create(0, game.world.height - 64, 'ground');
 
-// // define a escala
-// ground.scale.setTo(2, 2);
+//Cria um gropo de buracos
+pitgroup = game.add.group();
+// adiciona física a esse grupo
+pitgroup.enableBody = true;
 
-// //set como imutável
-// ground.body.immovable = true;
+//gropo de vendo
+windgroup = game.add.group();
 
+//adiciona física
+windgroup.enableBody = true;
+
+
+
+// criando buracos randomicos
+for (var i = 0; i < 3; i++){
+
+	var x = Math.floor(Math.random()*cord.length)
+	var pitcord = cord[x];
+
+	var y = Math.floor(Math.random()*pitcord.length)
+	var pitcordcolumn = pitcord[y];
+
+	console.log(pitcordcolumn)
+	console.log('Inicial X -->' + x)
+	console.log('Inicial Y -->' + y)
+
+    var pit = pitgroup.create(pitcordcolumn[0],pitcordcolumn[1], 'pit');
+
+    var windX
+    var windY
+
+
+ 		//coloca o vento de cima
+ 		if ( x !== 0) {
+ 			var wind = pitgroup.create(pitcordcolumn[x-1], pitcordcolumn[y] ,'wind')
+ 			console.log('X -->' + x-1)
+			console.log('Y -->' + y)
+ 		};
+ 		//esquerdo
+ 		if ( y !== 0) {
+ 			var wind2 = pitgroup.create(pitcordcolumn[x], pitcordcolumn[y-1] ,'wind')
+ 			console.log('X -->' + x)
+			console.log('Y -->' + y-1)
+ 		};
+ 		//baixo
+ 		if ( x !== 3) {
+ 			var wind3 = pitgroup.create(pitcordcolumn[x+1], pitcordcolumn[y] ,'wind')
+ 			console.log('X -->' + x+1)
+			console.log('Y -->' + y)
+ 		};
+ 		//direito
+ 		if ( y !== 3) {
+ 			var wind4 = pitgroup.create(pitcordcolumn[x], pitcordcolumn[y+1] ,'wind')
+ 			console.log('X -->' + x)
+			console.log('Y -->' + y+1)
+ 		};
+
+ 	
+};
 // criar um hunter
 hunter = game.add.sprite(0,game.world.height-150, 'hunter');
 
@@ -78,7 +130,6 @@ hunter = game.add.sprite(0,game.world.height-150, 'hunter');
 game.physics.arcade.enable(hunter);
 
 hunter.scale.setTo(2, 2);
-
 
 hunter.body.bounce.y = 0.2;
 hunter.body.gravity.y = 0;
@@ -88,21 +139,6 @@ hunter.body.collideWorldBounds = true;
 hunter.animations.add('left', [0, 1, 2, 3, 4,5], 5, true);
 hunter.animations.add('right', [7,8,9,10,11,12], 5, true);
 
-//Cria um gropo de objetos
-pitgroup = game.add.group();
-// adiciona física a esse grupo
-pitgroup.enableBody = true;
-
-
-
-for (var i = 0; i < 3; i++){
-
-	var pitcord = cord[Math.floor(Math.random()*cord.length)];
-	var pitcordcolumn = pitcord[Math.floor(Math.random()*pitcord.length)];
-
-
-    var pit = pitgroup.create(pitcordcolumn[0],pitcordcolumn[1], 'pit');
-};
 
 game.camera.follow(hunter);
 
