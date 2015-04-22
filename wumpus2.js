@@ -96,30 +96,58 @@ for (var i = 0; i < 3; i++){
     var windY
 
 
+ 		// //coloca o vento de cima
+ 		// if ( x !== 0) {
+ 		// 	var wind = pitgroup.create(pitcordcolumn[x-1], pitcordcolumn[y] ,'wind')
+ 		// 	console.log('X -->' + x-1)
+			// console.log('Y -->' + y)
+ 		// };
+ 		// //esquerdo
+ 		// if ( y !== 0) {
+ 		// 	var wind2 = pitgroup.create(pitcordcolumn[x], pitcordcolumn[y-1] ,'wind')
+ 		// 	console.log('X -->' + x)
+			// console.log('Y -->' + y-1)
+ 		// };
+ 		// //baixo
+ 		// if ( x !== 3) {
+ 		// 	var wind3 = pitgroup.create(pitcordcolumn[x+1], pitcordcolumn[y] ,'wind')
+ 		// 	console.log('X -->' + x+1)
+			// console.log('Y -->' + y)
+ 		// };
+ 		// //direito
+ 		// if ( y !== 3) {
+ 		// 	var wind4 = pitgroup.create(pitcordcolumn[x], pitcordcolumn[y+1] ,'wind')
+ 		// 	console.log('X -->' + x)
+			// console.log('Y -->' + y+1)
+ 		// };
+ 		// console.debug(pitcordcolumn[10])	
+
  		//coloca o vento de cima
- 		if ( x !== 0) {
- 			var wind = pitgroup.create(pitcordcolumn[x-1], pitcordcolumn[y] ,'wind')
- 			console.log('X -->' + x-1)
+ 		if (typeof cord[x-1] !== 'undefined') {
+ 			xx = x-1
+ 			var wind = pitgroup.create(cord[x-1][y][0], cord[x-1][y][1] ,'wind')
+ 			console.log('X -->' + xx)
 			console.log('Y -->' + y)
  		};
  		//esquerdo
- 		if ( y !== 0) {
- 			var wind2 = pitgroup.create(pitcordcolumn[x], pitcordcolumn[y-1] ,'wind')
- 			console.log('X -->' + x)
-			console.log('Y -->' + y-1)
- 		};
- 		//baixo
- 		if ( x !== 3) {
- 			var wind3 = pitgroup.create(pitcordcolumn[x+1], pitcordcolumn[y] ,'wind')
- 			console.log('X -->' + x+1)
-			console.log('Y -->' + y)
- 		};
- 		//direito
- 		if ( y !== 3) {
- 			var wind4 = pitgroup.create(pitcordcolumn[x], pitcordcolumn[y+1] ,'wind')
- 			console.log('X -->' + x)
-			console.log('Y -->' + y+1)
- 		};
+ 		// if (typeof pitcordcolumn[y-1] !== 'undefined') {
+ 		// 	var wind2 = pitgroup.create(pitcordcolumn[x], pitcordcolumn[y-1] ,'wind')
+ 		// 	// console.log('X -->' + x)
+			// // console.log('Y -->' + y-1)
+ 		// };
+ 		// //baixo
+ 		// if (typeof pitcordcolumn[x+1] !== 'undefined') {
+ 		// 	var wind3 = pitgroup.create(pitcordcolumn[x+1], pitcordcolumn[y] ,'wind')
+ 		// 	// console.log('X -->' + x+1)
+			// // console.log('Y -->' + y)
+ 		// };
+ 		// //direito
+ 		// if (typeof pitcordcolumn[y+1] !== 'undefined') {
+ 		// 	var wind4 = pitgroup.create(pitcordcolumn[x], pitcordcolumn[y+1] ,'wind')
+ 		// 	// console.log('X -->' + x)
+			// // console.log('Y -->' + y+1)
+ 		// };
+
 
  	
 };
