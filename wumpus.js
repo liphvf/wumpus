@@ -1,230 +1,259 @@
-// mods by Patrick OReilly 
-// twitter: @pato_reilly
-
-var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+var game = new Phaser.Game(800, 800, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
 function preload() {
 
-    game.load.tilemap('matching', 'assets/tilemaps/maps/phaser_tiles.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.image('tiles', 'assets/tilemaps/tiles/phaser_tiles.png');//, 100, 100, -1, 1, 1);    
-}
+    game.load.spritesheet("hunter", "assets/img/hunter.png", 65, 65);
+    game.load.image('pit', 'assets/img/pit.png');
+    game.load.image('map', 'assets/img/map.png');
+    game.load.image('gold', 'assets/img/gold.png');
+    game.load.image('tile', 'assets/img/tile.png');
+    game.load.image('wind', 'assets/img/wind.png');
+    game.load.image('stench', 'assets/img/stench.png')
+    game.load.image('moster', 'assets/img/moster.png')
+    game.load.image('door', 'assets/img/door.png')
 
-var timeCheck = 0;
-var flipFlag = false;
+};
 
-var startList = new Array();
-var squareList = new Array();
+var hunter;
+var tiles;
+var cursors;
+var pit;
+// var cord = [[0,0], [200,0], [400,0], [600,0], [0,200], [200,200], [400,200],[600,200], [0,400], [200,400], [400,400], [600,400], [200,600], [400,600], [600,600]];
+var cord = [
+[[0,0], [200,0], [400,0], [600,0]],
+[[0,200], [200,200], [400,200],[600,200]],
+[[0,400], [200,400], [400,400], [600,400]],
+[[0,600],[200,600], [400,600], [600,600]]
+];
 
-var masterCounter = 0;
-var squareCounter = 0;
-var square1Num;
-var square2Num;
-var savedSquareX1;
-var savedSquareY1;
-var savedSquareX2;
-var savedSquareY2;
-
-var map;
-var tileset;
-var layer;
-
-var marker;
-var currentTile;
-var currentTilePosition;
-
-var tileBack = 25;
-var timesUp = '+';
-var youWin = '+';
-
-var myCountdownSeconds;
-
+var windcord
 
 function create() {
 
-        map = game.add.tilemap('matching');
+// add física
+game.physics.startSystem(Phaser.Physics.ARCADE);
+game.stage.smoothed = false;
+// game.stage.backgroundColor = "#7cdce5";
 
-        map.addTilesetImage('Desert', 'tiles');
+//backgroud
+game.add.sprite(0, 0, 'map');
 
-        //tileset = game.add.tileset('tiles');
+
+
+//Tiles start
+//criou tiles group
+tiles = game.add.group();
+
+// habilita a física
+tiles.enableBody = true;
+
+//adiciona ao groupo
+var t11 = tiles.create(0,0,'tile')
+var t12 = tiles.create(200,0,'tile')
+var t13 = tiles.create(400,0,'tile')
+var t14 = tiles.create(600,0,'door')
+
+var t21 = tiles.create(0,200,'tile')
+var t22 = tiles.create(200,200,'tile')
+var t23 = tiles.create(400,200,'tile')
+var t24 = tiles.create(600,200,'tile')
+
+var t31 = tiles.create(0,400,'tile')
+var t32 = tiles.create(200,400,'tile')
+var t33 = tiles.create(400,400,'tile')
+var t34 = tiles.create(600,400,'tile')
+
+var t42 = tiles.create(200,600,'tile')
+var t43 = tiles.create(400,600,'tile')
+var t44 = tiles.create(600,600,'tile')
+// Tiles end
+
+//gold start
+
+//Cria um gropo de mostro
+goldgroup = game.add.group();
+// adiciona física a esse grupo
+goldgroup.enableBody = true;
+
+
+var x = Math.floor(Math.random()*cord.length)
+var pitcord = cord[x];
+
+var y = Math.floor(Math.random()*pitcord.length)
+var pitcordcolumn = pitcord[y];
+
+var gold = goldgroup.create(pitcordcolumn[0],pitcordcolumn[1], 'gold');
+// gold end
+
+
+//burcado vento start
+//Cria um gropo de buracos
+pitgroup = game.add.group();
+// adiciona física a esse grupo
+pitgroup.enableBody = true;
+
+//gropo de vendo
+windgroup = game.add.group();
+
+//adiciona física
+windgroup.enableBody = true;
+
+
+
+// criando buracos randomicos
+for (var i = 0; i < 3; i++){
+
+    var x = Math.floor(Math.random()*cord.length)
+    var pitcord = cord[x];
+
+    var y = Math.floor(Math.random()*pitcord.length)
+    var pitcordcolumn = pitcord[y];
+
+
+    var pit = pitgroup.create(pitcordcolumn[0],pitcordcolumn[1], 'pit');
+
+
+        //coloca o vento de cima
+        if (typeof cord[x-1] !== 'undefined') {
+            var wind = windgroup.create(cord[x-1][y][0], cord[x-1][y][1] ,'wind')
+        };
+
+        //esquerdo
+        if (typeof cord[y-1] !== 'undefined') {
+            var wind = windgroup.create(cord[x][y-1][0], cord[x][y-1][1] ,'wind')
+        };
+
+        // //baixo
+        if (typeof cord[x+1] !== 'undefined') {
+            var wind = windgroup.create(cord[x+1][y][0], cord[x+1][y][1] ,'wind')
+        };
+
+        // //direito        
+        if (typeof cord[y+1] !== 'undefined') {
+            var wind = windgroup.create(cord[x][y+1][0], cord[x][y+1][1] ,'wind')
+        };
     
-        layer = map.createLayer('Ground');//.tilemapLayer(0, 0, 600, 600, tileset, map, 0);
+};
 
-        //layer.resizeWorld();
+//buraco vento end
 
-        marker = game.add.graphics();
-        marker.lineStyle(2, 0x00FF00, 1);
-        marker.drawRect(0, 0, 100, 100);
-    
-    randomizeTiles();
 
-}
+//Cria um gropo de mostro
+mostergroup = game.add.group();
+// adiciona física a esse grupo
+mostergroup.enableBody = true;
+
+//gropo de fedor
+stenchgroup = game.add.group();
+
+//adiciona física
+stenchgroup.enableBody = true;
+
+
+// criando mostro randomico
+
+var x = Math.floor(Math.random()*cord.length)
+var pitcord = cord[x];
+
+var y = Math.floor(Math.random()*pitcord.length)
+var pitcordcolumn = pitcord[y];
+
+var moster = mostergroup.create(pitcordcolumn[0],pitcordcolumn[1], 'moster');
+
+//coloca o vento de cima
+if (typeof cord[x-1] !== 'undefined') {
+    var stench = stenchgroup.create(cord[x-1][y][0], cord[x-1][y][1] ,'stench')
+};
+//esquerdo
+if (typeof cord[y-1] !== 'undefined') {
+    var stench = stenchgroup.create(cord[x][y-1][0], cord[x][y-1][1] ,'stench')
+};
+
+// //baixo
+if (typeof cord[x+1] !== 'undefined') {
+    var stench = stenchgroup.create(cord[x+1][y][0], cord[x+1][y][1] ,'stench')
+};
+
+// //direito        
+if (typeof cord[y+1] !== 'undefined') {
+    var stench = stenchgroup.create(cord[x][y+1][0], cord[x][y+1][1] ,'stench')
+};
+
+
+
+
+
+
+// criar um hunter
+hunter = game.add.sprite(0,game.world.height-150, 'hunter');
+
+//habilitar física
+game.physics.arcade.enable(hunter);
+
+hunter.scale.setTo(2, 2);
+
+hunter.body.bounce.y = 0.2;
+hunter.body.gravity.y = 0;
+hunter.body.collideWorldBounds = true;
+
+//animation
+hunter.animations.add('left', [0, 1, 2, 3, 4,5], 5, true);
+hunter.animations.add('right', [7,8,9,10,11,12], 5, true);
+
+
+game.camera.follow(hunter);
+
+cursors = game.input.keyboard.createCursorKeys();
+
+};
 
 function update() {
-    
-    // countDownTimer();
-    
-    if (layer.getTileX(game.input.activePointer.worldX) <= 5) // to prevent the marker from going out of bounds
-    {
-        marker.x = layer.getTileX(game.input.activePointer.worldX) * 100;
-        marker.y = layer.getTileY(game.input.activePointer.worldY) * 100;
-    }
 
-    if (flipFlag == true) 
-    {
-        if (game.time.totalElapsedSeconds() - timeCheck > 0.5)
-        {
-            flipBack();
-        }
-    }
-    else
-    {
-        processClick();
-    }
+    // game.physics.arcade.collide(hunter, tiles, huntermove);
+    game.physics.arcade.overlap(hunter, tiles, huntermove, null, this);
+    game.physics.arcade.overlap(hunter, pitgroup, pitfall);
+
+function huntermove(hunter, tile) {
+
+    tile.kill()
 }
-   
-   
-// function countDownTimer() {
-  
-//     var timeLimit = 120;
-  
-//     mySeconds = game.time.totalElapsedSeconds();
-//     myCountdownSeconds = timeLimit - mySeconds;
-    
-//     if (myCountdownSeconds <= 0) 
-//         {
-//         // time is up
-//         timesUp = 'Time is up!';    
-//     }
-// }
 
-function processClick() {
-   
-    currentTile = map.getTile(layer.getTileX(marker.x), layer.getTileY(marker.y));
-    currentTilePosition = ((layer.getTileY(game.input.activePointer.worldY)+1)*6)-(6-(layer.getTileX(game.input.activePointer.worldX)+1));
-        
-    if (game.input.mousePointer.isDown)
-        {
-        // check to make sure the tile is not already flipped
-        if (currentTile.index == tileBack)
-        {
-            // get the corresponding item out of squareList
-                currentNum = squareList[currentTilePosition-1];
-            flipOver();
-                squareCounter++;
-            // is the second tile of pair flipped?
-            if  (squareCounter == 2) 
-            {
-                // reset squareCounter
-                squareCounter = 0;
-                square2Num = currentNum;
-                // check for match
-                if (square1Num == square2Num)
-                {
-                    masterCounter++;    
-                    
-                    if (masterCounter == 18) 
-                    {
-                        // go "win"
-                        youWin = 'Got them all!';
-                    }                       
-                }
-                else
-                {
-                    savedSquareX2 = layer.getTileX(marker.x);
-                    savedSquareY2 = layer.getTileY(marker.y);
-                        flipFlag = true;
-                        timeCheck = game.time.totalElapsedSeconds();
-                }   
-            }   
-            else
-            {
-                savedSquareX1 = layer.getTileX(marker.x);
-                savedSquareY1 = layer.getTileY(marker.y);
-                    square1Num = currentNum;
-            }           
-        }           
-    }    
-}
- 
-function flipOver() {
- 
-    map.putTile(currentNum, layer.getTileX(marker.x), layer.getTileY(marker.y));
-    
-}
- 
-function flipBack() {
-        
-    flipFlag = false;
-    
-    map.putTile(tileBack, savedSquareX1, savedSquareY1);
-    map.putTile(tileBack, savedSquareX2, savedSquareY2);
- 
-}
- 
-function randomizeTiles() {
-
-    for (num = 1; num <= 18; num++)
-    {
-        startList.push(num);
-    }
-    for (num = 1; num <= 18; num++)
-    {
-        startList.push(num);
-    }
-
-    // for debugging
-    // myString1 = startList.toString();
-  
-    // randomize squareList
-    for (i = 1; i <=36; i++)
-    {
-        var randomPosition = game.rnd.integerInRange(0,startList.length - 1);
-
-        var thisNumber = startList[ randomPosition ];
-
-        squareList.push(thisNumber);
-        var a = startList.indexOf(thisNumber);
-
-        startList.splice( a, 1);
-    }
-    
-    // for debugging
-    myString2 = squareList.toString();
-  
-    for (col = 0; col < 6; col++)
-    {
-        for (row = 0; row < 6; row++)
-        {
-            map.putTile(tileBack, col, row);
-        }
+function pitfall(hunter, pit) {
+    hunter.kill()
+    var conf =  confirm("Caiu no Burraco, gostaria de reiniciar o jogo?")
+    if (conf === true) {
+        location.reload(); 
     }
 }
 
-// function getHiddenTile() {
-        
-//     thisTile = squareList[currentTilePosition-1];
-//     return thisTile;
-// }
+    //  Reset the players velocity (movement)
+    hunter.body.velocity.x = 0;
 
-function render() {
+    if (cursors.left.isDown){
+        // hunter.x -= 4;
+        hunter.body.velocity.x = -150;
+        hunter.animations.play('left');
+    }
+    else if (cursors.right.isDown) {
+        // hunter.x += 4;
+        hunter.body.velocity.x = +150;
+        hunter.animations.play('right');
+    }
+     else if(cursors.up.isDown) {
+        hunter.y -= 4;
 
-    game.debug.text(timesUp, 620, 208, 'rgb(0,255,0)');
-    game.debug.text(youWin, 620, 240, 'rgb(0,255,0)');
+    }
+    else if (cursors.down.isDown) {
+        hunter.y +=4;
+    }
+    else {
+        hunter.animations.stop();
 
-    // game.debug.text('Time: ' + myCountdownSeconds, 620, 15, 'rgb(0,255,0)');
-
-    //game.debug.text('squareCounter: ' + squareCounter, 620, 272, 'rgb(0,0,255)');
-    // game.debug.text('Matched Pairs: ' + masterCounter, 620, 304, 'rgb(0,0,255)');
-
-    //game.debug.text('startList: ' + myString1, 620, 208, 'rgb(255,0,0)');
-    //game.debug.text('squareList: ' + myString2, 620, 240, 'rgb(255,0,0)');
+        hunter.frame = 6;
+    }
 
 
-    game.debug.text('Tile: ' + map.getTile(layer.getTileX(marker.x), layer.getTileY(marker.y)).index, 620, 48, 'rgb(255,0,0)');
 
-    game.debug.text('LayerX: ' + layer.getTileX(marker.x), 620, 80, 'rgb(255,0,0)');
-    game.debug.text('LayerY: ' + layer.getTileY(marker.y), 620, 112, 'rgb(255,0,0)');
 
-    game.debug.text('Tile Position: ' + currentTilePosition, 620, 144, 'rgb(255,0,0)');
-    // game.debug.text('Hidden Tile: ' + getHiddenTile(), 620, 176, 'rgb(255,0,0)');
-}
+};
+
