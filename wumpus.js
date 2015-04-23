@@ -12,12 +12,22 @@ function preload() {
     game.load.image('moster', 'assets/img/moster.png')
     game.load.image('door', 'assets/img/door.png')
 
+    //Audio
+    game.load.audio('coin', 'assets/audio/coin.wav')
+    game.load.audio('wind', 'assets/audio/wind.mp3')
+    game.load.audio('morte', 'assets/audio/morte.mp3')
+    game.load.audio('morteMonstro', 'assets/audio/mosrteMostro.mp3')
+
 };
 
 var hunter;
 var tiles;
 var cursors;
 var pit;
+var gold;
+
+//audio var
+var coin;
 // var cord = [[0,0], [200,0], [400,0], [600,0], [0,200], [200,200], [400,200],[600,200], [0,400], [200,400], [400,400], [600,400], [200,600], [400,600], [600,600]];
 var cord = [
 [[0,0], [200,0], [400,0], [600,0]],
@@ -38,6 +48,10 @@ game.stage.smoothed = false;
 //backgroud
 game.add.sprite(0, 0, 'map');
 
+//add a soud
+// coin = game.add.audio('coin');
+
+
 
 
 //Tiles start
@@ -48,24 +62,24 @@ tiles = game.add.group();
 tiles.enableBody = true;
 
 //adiciona ao groupo
-var t11 = tiles.create(0,0,'tile')
-var t12 = tiles.create(200,0,'tile')
-var t13 = tiles.create(400,0,'tile')
-var t14 = tiles.create(600,0,'door')
+var t11 = tiles.create(0,0,'tile');
+var t12 = tiles.create(200,0,'tile');
+var t13 = tiles.create(400,0,'tile');
+var t14 = tiles.create(600,0,'door');
 
-var t21 = tiles.create(0,200,'tile')
-var t22 = tiles.create(200,200,'tile')
-var t23 = tiles.create(400,200,'tile')
-var t24 = tiles.create(600,200,'tile')
+var t21 = tiles.create(0,200,'tile');
+var t22 = tiles.create(200,200,'tile');
+var t23 = tiles.create(400,200,'tile');
+var t24 = tiles.create(600,200,'tile');
 
-var t31 = tiles.create(0,400,'tile')
-var t32 = tiles.create(200,400,'tile')
-var t33 = tiles.create(400,400,'tile')
-var t34 = tiles.create(600,400,'tile')
+var t31 = tiles.create(0,400,'tile');
+var t32 = tiles.create(200,400,'tile');
+var t33 = tiles.create(400,400,'tile');
+var t34 = tiles.create(600,400,'tile');
 
-var t42 = tiles.create(200,600,'tile')
-var t43 = tiles.create(400,600,'tile')
-var t44 = tiles.create(600,600,'tile')
+var t42 = tiles.create(200,600,'tile');
+var t43 = tiles.create(400,600,'tile');
+var t44 = tiles.create(600,600,'tile');
 // Tiles end
 
 //gold start
@@ -76,10 +90,10 @@ goldgroup = game.add.group();
 goldgroup.enableBody = true;
 
 
-var x = Math.floor(Math.random()*cord.length)
+var x = Math.floor(Math.random()*cord.length);
 var pitcord = cord[x];
 
-var y = Math.floor(Math.random()*pitcord.length)
+var y = Math.floor(Math.random()*pitcord.length);
 var pitcordcolumn = pitcord[y];
 
 var gold = goldgroup.create(pitcordcolumn[0],pitcordcolumn[1], 'gold');
@@ -212,11 +226,24 @@ function update() {
     // game.physics.arcade.collide(hunter, tiles, huntermove);
     game.physics.arcade.overlap(hunter, tiles, huntermove, null, this);
     game.physics.arcade.overlap(hunter, pitgroup, pitfall);
+    game.physics.arcade.overlap(hunter, goldgroup, playgoldsound)
+    game.physics.arcade.overlap(hunter, windgroup, windsound)
+
+function playgoldsound(hunter, gold) {
+
+	game.sound.play('coin')
+	gold.kill()
+}
+
+function windsound(hunter, wind) {
+	game.sound.play('wind')
+}
 
 function huntermove(hunter, tile) {
 
     tile.kill()
 }
+
 
 function pitfall(hunter, pit) {
     hunter.kill()
