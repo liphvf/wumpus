@@ -8,4 +8,4 @@ Run Http server:
 
 Inside the folder, run:
 
-`python -m SimpleHttpServer` or `python3 -m http.server`
+`python -m SimpleHTTPServer` or `python3 -m http.server`
