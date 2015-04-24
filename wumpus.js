@@ -15,9 +15,11 @@ function preload() {
 
     //Audio
     game.load.audio('coin', 'assets/audio/coin.wav')
-    game.load.audio('wind', 'assets/audio/wind.wav')
-    game.load.audio('morte', 'assets/audio/morte.mp3')
-    game.load.audio('morteMonstro', 'assets/audio/mosrteMostro.mp3')
+    game.load.audio('wind', 'assets/audio/wind.ogg')
+    game.load.audio('morte', 'assets/audio/morte.ogg')
+    game.load.audio('morteMonstro', 'assets/audio/morteMonstro.ogg')
+    game.load.audio('peido', 'assets/audio/peido.ogg')
+    game.load.audio('win', 'assets/audio/win.ogg')
 
 };
 
@@ -34,6 +36,14 @@ var arrowshots = 1;
 var windTime = 0;
 
 var getgold;
+
+winhit = 1;
+
+
+//variaveis de tempo
+var seconds = 0;
+var minutes = 0;
+// milliseconds = Math.floor(game.time.time) % 100;
 
 
 //audio var
@@ -258,6 +268,10 @@ cursors = game.input.keyboard.createCursorKeys();
 
 function update() {
 
+// criar um delay no jogo
+minutes = Math.floor(game.time.time / 60000) % 60;
+seconds = Math.floor(game.time.time / 1000) % 60;
+
     // game.physics.arcade.collide(hunter, tiles, huntermove);
     game.physics.arcade.overlap(hunter, tiles, huntermove, null, this);
     game.physics.arcade.overlap(hunter, pitgroup, pitfall);
@@ -281,13 +295,18 @@ function windsound(hunter, wind) {
     if (game.time.now > windTime) {
         game.sound.play('wind')
         // Time = game.time.now + 300;
-        windTime += 2000
+        windTime += 3000
 
     }
 }
 
 function happyends(hunter, door) {
+    if (winhit === 1) {
+    game.sound.play('win')
     alert('Você ganhou');
+
+    }
+    winhit = 0
 };
 
     
@@ -300,28 +319,40 @@ function huntermove(hunter, tile) {
 
 
 function killmoster (arrow, mostergroup) {
-
     arrow.kill();
     mostergroup.kill();
+    game.sound.play('morteMonstro')
+
+    if(seconds < 3) {
+
     alert('Matou o Monstro')
+    }
 
 }
 
 function killhunter(hunter, mostergroup) {
     hunter.kill()
+    game.sound.play('morte')
+    if (seconds < 10) {
     var conf =  confirm("Você foi morto pelo Monstro, gostaria de recomeçar?")
     if (conf === true) {
         location.reload(); 
     }
-
+        }
 }
 
 
 function pitfall(hunter, pit) {
     hunter.kill()
+    game.sound.play('morte')
+
+    if (seconds < 10) { 
+
     var conf =  confirm("Caiu no Burraco, gostaria de reiniciar o jogo?")
     if (conf === true) {
         location.reload(); 
+    }
+
     }
 }
 
