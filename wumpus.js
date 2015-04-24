@@ -77,41 +77,6 @@ game.add.sprite(0, 0, 'map');
 
 
 
-//Tiles start
-//criou tiles group
-tiles = game.add.group();
-
-// habilita a física
-tiles.enableBody = true;
-
-
-doors = game.add.group();
-
-// habilita a física
-doors.enableBody = true;
-
-//adiciona ao groupo
-var t11 = tiles.create(0,0,'tile');
-var t12 = tiles.create(200,0,'tile');
-var t13 = tiles.create(400,0,'tile');
-// var t14 = tiles.create(600,0,'door');
-var door = doors.create(600,0,'door');
-// door = game.add.sprite(600,0, 'door');
-
-var t21 = tiles.create(0,200,'tile');
-var t22 = tiles.create(200,200,'tile');
-var t23 = tiles.create(400,200,'tile');
-var t24 = tiles.create(600,200,'tile');
-
-var t31 = tiles.create(0,400,'tile');
-var t32 = tiles.create(200,400,'tile');
-var t33 = tiles.create(400,400,'tile');
-var t34 = tiles.create(600,400,'tile');
-
-var t42 = tiles.create(200,600,'tile');
-var t43 = tiles.create(400,600,'tile');
-var t44 = tiles.create(600,600,'tile');
-// Tiles end
 
 //gold start
 
@@ -228,6 +193,41 @@ if (typeof cord[y+1] !== 'undefined') {
 
 
 
+//Tiles start
+//criou tiles group
+tiles = game.add.group();
+
+// habilita a física
+tiles.enableBody = true;
+
+
+doors = game.add.group();
+
+// habilita a física
+doors.enableBody = true;
+
+//adiciona ao groupo
+var t11 = tiles.create(0,0,'tile');
+var t12 = tiles.create(200,0,'tile');
+var t13 = tiles.create(400,0,'tile');
+// var t14 = tiles.create(600,0,'door');
+var door = doors.create(600,0,'door');
+// door = game.add.sprite(600,0, 'door');
+
+var t21 = tiles.create(0,200,'tile');
+var t22 = tiles.create(200,200,'tile');
+var t23 = tiles.create(400,200,'tile');
+var t24 = tiles.create(600,200,'tile');
+
+var t31 = tiles.create(0,400,'tile');
+var t32 = tiles.create(200,400,'tile');
+var t33 = tiles.create(400,400,'tile');
+var t34 = tiles.create(600,400,'tile');
+
+var t42 = tiles.create(200,600,'tile');
+var t43 = tiles.create(400,600,'tile');
+var t44 = tiles.create(600,600,'tile');
+// Tiles end
 
 // criar um hunter
 hunter = game.add.sprite(0,game.world.height-150, 'hunter');
@@ -299,13 +299,14 @@ function playstenchsound(hunter, stenchgroup) {
 
 function playgoldsound(hunter, gold) {
 
-	game.sound.play('coin')
-	gold.kill()
+    gold.kill()
     getgold = 1
+    alert('Parabéns você pegou o ouro')
+    game.sound.play('coin')
 }
 
 function windsound(hunter, wind) {
-	
+    
     if (game.time.now > windTime) {
         game.sound.play('wind')
         // Time = game.time.now + 300;
@@ -316,7 +317,6 @@ function windsound(hunter, wind) {
 
 function happyends(hunter, door) {
     if (winhit === 1) {
-    game.sound.play('win')
 
     var pegou = ''
     var matou = ''
@@ -328,6 +328,7 @@ function happyends(hunter, door) {
     }
 
     alert('Você ganhou! ' + pegou + matou)
+    game.sound.play('win')
 
     }
     winhit = 0
@@ -399,7 +400,15 @@ function pitfall(hunter, pit) {
         arrowDirection = cursors.right.isDown
     }
      else if(cursors.up.isDown) {
-        hunter.y -= 2;
+
+        // timer = game.time.create(1000, false);
+        // timer.add(3000);
+        // timer.onEvent.add(cursors.up.isDown, this);
+        // timer.start();
+        
+        // function andar(){
+        // }
+            hunter.y -= 4
 
         arrowDirection = cursors.up.isDown
 
