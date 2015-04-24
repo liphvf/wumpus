@@ -15,7 +15,7 @@ function preload() {
 
     //Audio
     game.load.audio('coin', 'assets/audio/coin.wav')
-    game.load.audio('wind', 'assets/audio/wind.mp3')
+    game.load.audio('wind', 'assets/audio/wind.wav')
     game.load.audio('morte', 'assets/audio/morte.mp3')
     game.load.audio('morteMonstro', 'assets/audio/mosrteMostro.mp3')
 
@@ -30,6 +30,11 @@ var arrowTime = 0;
 
 var arrowDirection;
 var arrowshots = 1;
+
+var windTime = 0;
+
+var getgold;
+
 
 //audio var
 var coin;
@@ -66,11 +71,19 @@ tiles = game.add.group();
 // habilita a física
 tiles.enableBody = true;
 
+
+doors = game.add.group();
+
+// habilita a física
+doors.enableBody = true;
+
 //adiciona ao groupo
 var t11 = tiles.create(0,0,'tile');
 var t12 = tiles.create(200,0,'tile');
 var t13 = tiles.create(400,0,'tile');
-var t14 = tiles.create(600,0,'door');
+// var t14 = tiles.create(600,0,'door');
+var door = doors.create(600,0,'door');
+// door = game.add.sprite(600,0, 'door');
 
 var t21 = tiles.create(0,200,'tile');
 var t22 = tiles.create(200,200,'tile');
@@ -252,6 +265,8 @@ function update() {
     game.physics.arcade.overlap(hunter, windgroup, windsound)
     game.physics.arcade.overlap(hunter, mostergroup, killhunter)
 
+    game.physics.arcade.overlap(hunter, doors, happyends, null, this)
+
 
     game.physics.arcade.overlap(arrow, mostergroup,killmoster, null, this);
 
@@ -262,8 +277,21 @@ function playgoldsound(hunter, gold) {
 }
 
 function windsound(hunter, wind) {
-	game.sound.play('wind')
+	
+    if (game.time.now > windTime) {
+        game.sound.play('wind')
+        // Time = game.time.now + 300;
+        windTime += 2000
+
+    }
 }
+
+function happyends(hunter, door) {
+    alert('Você ganhou');
+};
+
+    
+
 
 function huntermove(hunter, tile) {
 
@@ -315,7 +343,7 @@ function pitfall(hunter, pit) {
         arrowDirection = cursors.right.isDown
     }
      else if(cursors.up.isDown) {
-        hunter.y -= 4;
+        hunter.y -= 2;
 
         arrowDirection = cursors.up.isDown
 
