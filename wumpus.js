@@ -35,7 +35,10 @@ var arrowshots = 1;
 
 var windTime = 0;
 
+var stenchTime = 0
+
 var getgold;
+var getmonster;
 
 winhit = 1;
 
@@ -278,16 +281,27 @@ seconds = Math.floor(game.time.time / 1000) % 60;
     game.physics.arcade.overlap(hunter, goldgroup, playgoldsound)
     game.physics.arcade.overlap(hunter, windgroup, windsound)
     game.physics.arcade.overlap(hunter, mostergroup, killhunter)
-
+    game.physics.arcade.overlap(hunter, stenchgroup, playstenchsound)
     game.physics.arcade.overlap(hunter, doors, happyends, null, this)
 
 
     game.physics.arcade.overlap(arrow, mostergroup,killmoster, null, this);
 
+
+function playstenchsound(hunter, stenchgroup) {
+    if (game.time.now > stenchTime) {
+        game.sound.play('peido')
+        // Time = game.time.now + 300;
+        stenchTime += 3000
+
+    }
+}    
+
 function playgoldsound(hunter, gold) {
 
 	game.sound.play('coin')
 	gold.kill()
+    getgold = 1
 }
 
 function windsound(hunter, wind) {
@@ -303,7 +317,17 @@ function windsound(hunter, wind) {
 function happyends(hunter, door) {
     if (winhit === 1) {
     game.sound.play('win')
-    alert('Você ganhou');
+
+    var pegou = ''
+    var matou = ''
+    if (getgold === 1) {
+        pegou = 'Pegou o OURO!'
+    } 
+    if (getmonster ===1) {
+        matou =  'Matou o monstro'
+    }
+
+    alert('Você ganhou! ' + pegou + matou)
 
     }
     winhit = 0
@@ -319,6 +343,7 @@ function huntermove(hunter, tile) {
 
 
 function killmoster (arrow, mostergroup) {
+    getmonster = 1
     arrow.kill();
     mostergroup.kill();
     game.sound.play('morteMonstro')
@@ -333,7 +358,7 @@ function killmoster (arrow, mostergroup) {
 function killhunter(hunter, mostergroup) {
     hunter.kill()
     game.sound.play('morte')
-    if (seconds < 10) {
+    if (seconds < 5) {
     var conf =  confirm("Você foi morto pelo Monstro, gostaria de recomeçar?")
     if (conf === true) {
         location.reload(); 
@@ -346,7 +371,7 @@ function pitfall(hunter, pit) {
     hunter.kill()
     game.sound.play('morte')
 
-    if (seconds < 10) { 
+    if (seconds < 1) { 
 
     var conf =  confirm("Caiu no Burraco, gostaria de reiniciar o jogo?")
     if (conf === true) {
