@@ -250,6 +250,7 @@ function update() {
     game.physics.arcade.overlap(hunter, pitgroup, pitfall);
     game.physics.arcade.overlap(hunter, goldgroup, playgoldsound)
     game.physics.arcade.overlap(hunter, windgroup, windsound)
+    game.physics.arcade.overlap(hunter, mostergroup, killhunter)
 
 
     game.physics.arcade.overlap(arrow, mostergroup,killmoster, null, this);
@@ -275,6 +276,15 @@ function killmoster (arrow, mostergroup) {
     arrow.kill();
     mostergroup.kill();
     alert('Matou o Monstro')
+
+}
+
+function killhunter(hunter, mostergroup) {
+    hunter.kill()
+    var conf =  confirm("Você foi morto pelo Monstro, gostaria de recomeçar?")
+    if (conf === true) {
+        location.reload(); 
+    }
 
 }
 
