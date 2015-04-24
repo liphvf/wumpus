@@ -9,7 +9,7 @@ function preload() {
     game.load.image('tile', 'assets/img/tile.png');
     game.load.image('wind', 'assets/img/wind.png');
     game.load.image('stench', 'assets/img/stench.png')
-    game.load.image('moster', 'assets/img/moster.png')
+    game.load.image('moster', 'assets/img/moster2.png')
     game.load.image('door', 'assets/img/door.png')
     game.load.image('arrow', 'assets/img/arrow.png')
 
@@ -408,13 +408,13 @@ function pitfall(hunter, pit) {
         
         // function andar(){
         // }
-            hunter.y -= 4
+            hunter.y -= 3;
 
         arrowDirection = cursors.up.isDown
 
     }
     else if (cursors.down.isDown) {
-        hunter.y +=4;
+        hunter.y +=3;
 
         arrowDirection = cursors.down.isDown
     }
