@@ -11,6 +11,7 @@ function preload() {
     game.load.image('stench', 'assets/img/stench.png')
     game.load.image('moster', 'assets/img/moster.png')
     game.load.image('door', 'assets/img/door.png')
+    game.load.image('arrow', 'assets/img/arrow.png')
 
     //Audio
     game.load.audio('coin', 'assets/audio/coin.wav')
@@ -25,6 +26,10 @@ var tiles;
 var cursors;
 var pit;
 var gold;
+var arrowTime = 0;
+
+var arrowDirection;
+var arrowshots = 1;
 
 //audio var
 var coin;
@@ -217,6 +222,23 @@ hunter.animations.add('right', [7,8,9,10,11,12], 5, true);
 
 game.camera.follow(hunter);
 
+//Arrow
+arrow = game.add.group();
+arrow.enableBody = true;
+arrow.physicsBodyType = Phaser.Physics.ARCADE;
+
+for (var i = 0; i < 20; i++)
+{
+    var arw = arrow.create(0, 0, 'arrow');
+    arw.name = 'arrow' + i;
+    arw.exists = false;
+    arw.visible = false;
+    arw.checkWorldBounds = true;
+    arw.events.onOutOfBounds.add(resetArrow, this);
+}
+
+
+
 cursors = game.input.keyboard.createCursorKeys();
 
 };
@@ -228,6 +250,9 @@ function update() {
     game.physics.arcade.overlap(hunter, pitgroup, pitfall);
     game.physics.arcade.overlap(hunter, goldgroup, playgoldsound)
     game.physics.arcade.overlap(hunter, windgroup, windsound)
+
+
+    game.physics.arcade.overlap(arrow, mostergroup,killmoster, null, this);
 
 function playgoldsound(hunter, gold) {
 
@@ -242,6 +267,15 @@ function windsound(hunter, wind) {
 function huntermove(hunter, tile) {
 
     tile.kill()
+}
+
+
+function killmoster (arrow, mostergroup) {
+
+    arrow.kill();
+    mostergroup.kill();
+    alert('Matou o Monstro')
+
 }
 
 
@@ -260,27 +294,93 @@ function pitfall(hunter, pit) {
         // hunter.x -= 4;
         hunter.body.velocity.x = -150;
         hunter.animations.play('left');
+
+        arrowDirection = cursors.left.isDown
     }
     else if (cursors.right.isDown) {
         // hunter.x += 4;
         hunter.body.velocity.x = +150;
         hunter.animations.play('right');
+
+        arrowDirection = cursors.right.isDown
     }
      else if(cursors.up.isDown) {
         hunter.y -= 4;
 
+        arrowDirection = cursors.up.isDown
+
     }
     else if (cursors.down.isDown) {
         hunter.y +=4;
+
+        arrowDirection = cursors.down.isDown
     }
     else {
         hunter.animations.stop();
 
         hunter.frame = 6;
     }
+    if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR))
+    {
 
+        if (arrowshots === 1) {
+        fireArrow();
+        }
+        arrowshots = arrowshots -1;
+        
+
+    }
 
 
 
 };
 
+
+function resetArrow(arrow) {
+    arrow.kill();
+};
+
+function fireArrow () {
+
+    if (game.time.now > arrowTime)
+    {
+        arrowhit = arrow.getFirstExists(false);
+
+        // if (arrowhit)
+        // {
+        //     arrowhit.reset(hunter.x + 6, hunter.y - 8);
+        //     arrowhit.body.velocity.y = -100;
+        //     Time = game.time.now + 300;
+
+        //     console.log(arrowDirection)
+        // }
+
+        if (arrowDirection !== null) {
+
+        if (arrowDirection === cursors.right.isDown) {
+            arrowhit.reset(hunter.x + 6, hunter.y - 8);
+            arrowhit.body.velocity.x = +100;
+            Time = game.time.now + 300;
+        } else if (arrowDirection === cursors.left.isDown) {
+            arrowhit.reset(hunter.x + 6, hunter.y - 8);
+            arrowhit.body.velocity.x = -100;
+            Time = game.time.now + 300;
+        } else if (arrowDirection === cursors.up.isDown) {
+            arrowhit.reset(hunter.x + 6, hunter.y - 8);
+            arrowhit.body.velocity.y = -100;
+            Time = game.time.now + 300;
+        } else if (arrowDirection === cursors.down.isDown) {
+            arrowhit.reset(hunter.x + 6, hunter.y - 8);
+            arrowhit.body.velocity.y = +100;
+            Time = game.time.now + 300;
+        }
+
+        }
+
+
+
+
+
+    }
+
+};
